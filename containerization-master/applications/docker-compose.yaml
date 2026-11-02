@@ -1,0 +1,57 @@
+name: docker-test
+
+services:
+  docker-db-demo:
+    container_name: docker-db-demo
+    image: postgres:17
+    restart: always
+    volumes:
+      - docker-db-demo:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: angel
+      POSTGRES_PASSWORD: angel
+      POSTGRES_DB: images
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U angel -d images"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  docker-starter-api:
+    container_name: docker-starter-api
+    build:
+      context: ./docker-bimag-api
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: r2dbc:postgresql://docker-db-demo:5432/images
+      DATABASE_USER: angel
+      DATABASE_PASSWORD: angel
+    ports:
+      - "8080:8080"
+    depends_on:
+      docker-db-demo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  docker-starter-webapp:
+    container_name: docker-bimag-webapp
+    build:
+      context: ./docker-bimag-webapp
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      docker-starter-api:
+        condition: service_healthy
+
+volumes:
+  docker-db-demo:

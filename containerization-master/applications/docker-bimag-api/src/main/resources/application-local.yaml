@@ -1,0 +1,10 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - com.example.ApplicationKt.module
+database:
+  url: "r2dbc:postgresql://localhost:5432/bimag"
+  user: "postgres"
+  password: "postgres"

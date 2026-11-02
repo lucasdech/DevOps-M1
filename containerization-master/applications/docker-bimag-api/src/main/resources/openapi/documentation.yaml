@@ -1,0 +1,53 @@
+openapi: 3.1.0
+
+info:
+  title: Messages API
+  version: 1.0.0
+
+paths:
+  /messages:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExposedMessage"
+      responses:
+        "201":
+          description: Created
+
+  /message/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+    delete:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: No Content
+
+components:
+  schemas:
+    ExposedMessage:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
