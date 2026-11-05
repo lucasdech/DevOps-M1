@@ -21,7 +21,7 @@ services:
 
   docker-redis:
     container_name: docker-redis
-    image: redis:8.10
+    image: redis:8
     restart: always
     volumes:
       - redis-data:/data
@@ -31,8 +31,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    
-  # ajouter le docker pg admin ici
+
+  docker-pgadmin:
+    container_name: docker-pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      docker-db-demo:
+        condition: service_healthy
 
   docker-starter-api:
     container_name: docker-starter-api
@@ -67,3 +80,4 @@ services:
 volumes:
   docker-db-demo:
   redis-data:
+  pgadmin-data:
