@@ -1,0 +1,69 @@
+name: bimag
+
+services:
+  docker-db-demo:
+    container_name: docker-db-demo
+    image: postgres:17
+    restart: always
+    volumes:
+      - docker-db-demo:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: angel
+      POSTGRES_PASSWORD: angel
+      POSTGRES_DB: images
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U angel -d images"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  docker-redis:
+    container_name: docker-redis
+    image: redis:8.10
+    restart: always
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+  # ajouter le docker pg admin ici
+
+  docker-starter-api:
+    container_name: docker-starter-api
+    image: ${DOCKERHUB_USERNAME}/bimag-api:latest
+    restart: always
+    environment:
+      DATABASE_URL: r2dbc:postgresql://docker-db-demo:5432/images
+      DATABASE_USER: angel
+      DATABASE_PASSWORD: angel
+    ports:
+      - "8080:8080"
+    depends_on:
+      docker-db-demo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  docker-starter-webapp:
+    container_name: docker-bimag-webapp
+    image: ${DOCKERHUB_USERNAME}/bimag-webapp:latest
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      docker-starter-api:
+        condition: service_healthy
+
+volumes:
+  docker-db-demo:
+  redis-data:
