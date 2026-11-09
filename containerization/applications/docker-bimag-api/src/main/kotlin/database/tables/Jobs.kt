@@ -7,8 +7,11 @@ enum class JobStatus {
     pending, processing, completed, failed
 }
 
-enum class JobOperation {
-    resize, rotate, thumbnail, convert
+enum class JobOperation(val queue: String) {
+    resize("bimag:jobs:size"),
+    rotate("bimag:jobs:size"),
+    thumbnail("bimag:jobs:size"),
+    convert("bimag:jobs:format")
 }
 
 object Jobs : UIntIdTable("jobs") {

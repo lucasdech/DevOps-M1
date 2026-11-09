@@ -8,3 +8,5 @@ database:
   url: ${DATABASE_URL}
   user: ${DATABASE_USER}
   password: ${DATABASE_PASSWORD}
+redis:
+  url: ${REDIS_URL}
