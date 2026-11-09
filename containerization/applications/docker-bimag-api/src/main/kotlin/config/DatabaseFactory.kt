@@ -1,6 +1,7 @@
 package com.example.config
 
 import com.example.database.tables.Images
+import com.example.database.tables.Jobs
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
@@ -20,6 +21,7 @@ object DatabaseFactory {
     suspend fun initializeSchema(database: R2dbcDatabase) {
         suspendTransaction(db = database) {
             SchemaUtils.create(Images)
+            SchemaUtils.create(Jobs)
         }
     }
 }
