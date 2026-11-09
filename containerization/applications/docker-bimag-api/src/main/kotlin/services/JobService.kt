@@ -6,6 +6,7 @@ import com.example.database.tables.JobStatus
 import com.example.database.tables.Jobs
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -15,6 +16,7 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.r2dbc.update
 import kotlin.UInt
 
+@Serializable
 data class Job(
     val id: UInt,
     val source_image_id: UInt,
