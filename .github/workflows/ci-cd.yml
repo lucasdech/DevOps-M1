@@ -1,0 +1,103 @@
+name: CI/CD Pipeline (US 4)
+
+on:
+  push:
+    branches:
+      - main
+      - story4
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+jobs:
+  # 1. Exécuter les tests unitaires
+  test:
+    name: 1. Unit Tests
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Start PostgreSQL for tests
+        run: docker compose -f containerization/docker-compose.yaml up -d --wait docker-db-demo
+
+      - name: Run Gradle unit tests
+        working-directory: containerization/applications/docker-bimag-api
+        env:
+          DATABASE_URL: r2dbc:postgresql://localhost:5432/images
+          DATABASE_USER: angel
+          DATABASE_PASSWORD: angel
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test --no-daemon
+
+  # 2. Builder les images Docker
+  build:
+    name: 2. Build Docker Images
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build bimag-api image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bimag-api:latest \
+            ./containerization/applications/docker-bimag-api
+
+      - name: Build bimag-webapp image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/bimag-webapp:latest \
+            ./containerization/applications/docker-bimag-webapp
+
+  # 3. Publier les images sur Docker Hub
+  publish:
+    name: 3. Publish to Docker Hub
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push images to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/bimag-api:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/bimag-webapp:latest
+
+      - name: Remove local images to force pull from Docker Hub on deploy
+        run: |
+          docker compose -f containerization/docker-compose.yaml down || true
+          docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/bimag-api:latest ${{ secrets.DOCKERHUB_USERNAME }}/bimag-webapp:latest || true
+
+  # 4. Déployer l'application en local avec Docker Compose
+  deploy:
+    name: 4. Deploy Locally with Docker Compose
+    needs: publish
+    runs-on: self-hosted
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull images from Docker Hub
+        run: docker compose -f containerization/docker-compose.yaml pull
+
+      - name: Start services with Docker Compose (no local build)
+        run: docker compose -f containerization/docker-compose.yaml up -d --pull always --no-build
+
+      - name: Check running containers
+        run: docker compose -f containerization/docker-compose.yaml ps

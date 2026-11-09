@@ -21,7 +21,7 @@ services:
 
   docker-redis:
     container_name: docker-redis
-    image: redis:8.10
+    image: redis:8
     restart: always
     volumes:
       - redis-data:/data
