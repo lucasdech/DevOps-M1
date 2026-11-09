@@ -55,10 +55,13 @@ services:
       DATABASE_URL: r2dbc:postgresql://docker-db-demo:5432/images
       DATABASE_USER: angel
       DATABASE_PASSWORD: angel
+      REDIS_URL: redis://docker-redis:6379
     ports:
       - "8080:8080"
     depends_on:
       docker-db-demo:
+        condition: service_healthy
+      docker-redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/health || exit 1"]
