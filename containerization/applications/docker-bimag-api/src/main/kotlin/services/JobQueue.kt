@@ -6,7 +6,12 @@ import com.example.database.tables.JobOperation
 import io.lettuce.core.api.StatefulRedisConnection
 
 class JobQueue(private val redis: StatefulRedisConnection<String, String>) {
+
     suspend fun publish(jobId: UInt, operation: JobOperation) = withContext(Dispatchers.IO) {
         redis.sync().lpush(operation.queue, jobId.toString())
+    }
+
+    suspend fun take(queue: String): UInt? = withContext(Dispatchers.IO) {
+        redis.sync().brpop(5, queue)?.value?.toUIntOrNull()
     }
 }

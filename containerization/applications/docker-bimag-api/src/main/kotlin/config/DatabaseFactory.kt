@@ -18,6 +18,9 @@ object DatabaseFactory {
         )
     }
 
+    fun connect(url: String, user: String, password: String): R2dbcDatabase =
+        R2dbcDatabase.connect(url = url, user = user, password = password)
+
     suspend fun initializeSchema(database: R2dbcDatabase) {
         suspendTransaction(db = database) {
             SchemaUtils.create(Images)
