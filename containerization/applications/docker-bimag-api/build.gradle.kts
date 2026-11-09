@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.exposed.r2dbc)
     implementation(libs.logback.classic)
     implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
+    implementation("io.lettuce:lettuce-core:7.9.0.RELEASE")
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
