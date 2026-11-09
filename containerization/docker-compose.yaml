@@ -80,6 +80,36 @@ services:
       docker-starter-api:
         condition: service_healthy
 
+  bimag-size-worker:
+    image: ${DOCKERHUB_USERNAME}/bimag-api:latest       # même image que l'API
+    restart: always
+    environment:
+      APP_ROLE: size-worker
+      DATABASE_URL: r2dbc:postgresql://docker-db-demo:5432/images
+      DATABASE_USER: angel
+      DATABASE_PASSWORD: angel
+      REDIS_URL: redis://docker-redis:6379
+    depends_on:
+      docker-redis:
+        condition: service_healthy
+      docker-starter-api:
+        condition: service_healthy
+
+  bimag-format-worker:
+    image: ${DOCKERHUB_USERNAME}/bimag-api:latest
+    restart: always
+    environment:
+      APP_ROLE: format-worker
+      DATABASE_URL: r2dbc:postgresql://docker-db-demo:5432/images
+      DATABASE_USER: angel
+      DATABASE_PASSWORD: angel
+      REDIS_URL: redis://docker-redis:6379
+    depends_on:
+      docker-redis:
+        condition: service_healthy
+      docker-starter-api:
+        condition: service_healthy
+
 volumes:
   docker-db-demo:
   redis-data:
