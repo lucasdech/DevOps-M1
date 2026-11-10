@@ -54,14 +54,6 @@ class ImageService(private val database: R2dbcDatabase) {
         }[Images.id].value
     }
 
-
-    suspend fun process(data: ByteArray, size: Int): ByteArray {
-        require(data.isNotEmpty()) { "Image cannot be empty" }
-        require(size in 1..4096) { "Invalid image size" }
-
-        return runImageMagick(data, listOf("-resize", "${size}x${size}>"))
-    }
-
     suspend fun rotate(data: ByteArray, angle: Int): ByteArray {
         require(data.isNotEmpty()) { "Image cannot be empty" }
         require(angle in ROTATION_ANGLES) { "Invalid rotation angle" }

@@ -19,7 +19,7 @@ class ServerTest {
         configure()
         assertEquals(
             HttpStatusCode.BadRequest,
-            client.post("/api/image/1/rotate?angle=45").status
+            client.post("/api/image/process?imageId=1&operation=rotate&angle=45").status
         )
     }
 
@@ -28,7 +28,7 @@ class ServerTest {
         configure()
         assertEquals(
             HttpStatusCode.BadRequest,
-            client.post("/api/image/1/convert?format=exe").status
+            client.post("/api/image/process?imageId=1&operation=convert&format=exe").status
         )
     }
 
@@ -37,7 +37,7 @@ class ServerTest {
         configure()
         assertEquals(
             HttpStatusCode.BadRequest,
-            client.post("/api/image/1/thumbnail?size=9999").status
+            client.post("/api/image/process?imageId=1&operation=thumbnail&size=9999").status
         )
     }
 
@@ -46,7 +46,7 @@ class ServerTest {
         configure()
         assertEquals(
             HttpStatusCode.BadRequest,
-            client.post("/api/image/1/resize").status
+            client.post("/api/image/process?imageId=1&operation=resize").status
         )
     }
 
@@ -55,7 +55,7 @@ class ServerTest {
         configure()
         assertEquals(
             HttpStatusCode.BadRequest,
-            client.post("/api/image/1/resize?width=100&keepRatio=false").status
+            client.post("/api/image/process?imageId=1&operation=resize&width=100&keepRatio=false").status
         )
     }
 
