@@ -23,6 +23,8 @@ services:
     container_name: docker-redis
     image: redis:8
     restart: always
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes

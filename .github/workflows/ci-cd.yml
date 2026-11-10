@@ -28,8 +28,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Start PostgreSQL for tests
-        run: docker compose -f containerization/docker-compose.yaml up -d --wait docker-db-demo
+      - name: Start PostgreSQL and Redis for tests
+        run: docker compose -f containerization/docker-compose.yaml up -d --wait docker-db-demo docker-redis
 
       - name: Run Gradle unit tests
         working-directory: containerization/applications/docker-bimag-api
@@ -37,6 +37,7 @@ jobs:
           DATABASE_URL: r2dbc:postgresql://localhost:5432/images
           DATABASE_USER: angel
           DATABASE_PASSWORD: angel
+          REDIS_URL: redis://localhost:6379
         run: |
           chmod +x ./gradlew
           ./gradlew test --no-daemon
