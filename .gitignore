@@ -4,3 +4,5 @@
 **/.gradle/
 **/.idea/
 *.mv.db
+**/.env
+.env
